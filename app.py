@@ -109,6 +109,11 @@ if "rt_data" not in st.session_state:
 # 3. If auto_refresh is ON, we re-fetch RT data.
 
 rt = st.session_state["rt_data"]
+
+# Show warning if API failed
+if rt.empty:
+    st.warning("⚠️ **GTFS Realtime API is currently unavailable.** The data.gov.my service may be down or experiencing issues. Please try again later.")
+
 df = attach_routes(rt, trips, routes)
 
 # -----------------------
