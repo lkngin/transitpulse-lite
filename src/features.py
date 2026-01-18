@@ -56,7 +56,12 @@ def build_shape_cache(shapes: pd.DataFrame, downsample_step: int = 8) -> dict:
         if ds_idx[-1] != len(lat) - 1:
             ds_idx = np.append(ds_idx, len(lat) - 1)
 
-        cache[sid] = {"lat": lat, "lon": lon, "cum": cum, "ds_idx": ds_idx}
+        # Store "total_m" for circular calcs
+        total_m = cum[-1] if len(cum) > 0 else 0.0
+
+        cache[sid] = {
+            "lat": lat, "lon": lon, "cum": cum, "ds_idx": ds_idx, "total_m": total_m
+        }
 
     return cache
 
@@ -90,6 +95,7 @@ def compute_progress_along_shape(df: pd.DataFrame, shape_cache: dict) -> pd.Data
             prog.append(float(cum[idx]))
 
         out.loc[g.index, "progress_m"] = prog
+        out.loc[g.index, "shape_len"] = sc.get("total_m", np.nan)
 
     return out
 
@@ -117,7 +123,14 @@ def compute_headway_proxy(df: pd.DataFrame, circular: bool = False) -> pd.DataFr
         gap_behind = np.concatenate([[np.nan], gaps])
 
         if circular:
-            route_len = float(np.nanmax(prog) - np.nanmin(prog))
+            # V2 FIX: Use actual shape_len if available, else fallback to min-max spread (risky)
+            if "shape_len" in gg.columns:
+                # Use the max shape_len for this group (should be identical for same shape_id)
+                sl = float(gg["shape_len"].max())
+                route_len = sl if (pd.notna(sl) and sl > 0) else float(np.nanmax(prog) - np.nanmin(prog))
+            else:
+                route_len = float(np.nanmax(prog) - np.nanmin(prog))
+
             wrap = (route_len - prog[-1]) + prog[0] if route_len > 0 else np.nan
             gap_ahead[-1] = wrap
             gap_behind[0] = wrap

@@ -24,8 +24,8 @@ from src.prompts import SYSTEM_PROMPT, USER_TEMPLATE
 # -----------------------
 # URLs
 # -----------------------
-GTFS_STATIC_URL = "https://api.data.gov.my/gtfs-static/prasarana?category=rapid-bus-kl"
-GTFS_RT_URL = "https://api.data.gov.my/gtfs-realtime/vehicle-position/prasarana?category=rapid-bus-kl"
+GTFS_STATIC_URL = "https://api.data.gov.my/gtfs-static/prasarana/?category=rapid-bus-kl"
+GTFS_RT_URL = "https://api.data.gov.my/gtfs-realtime/vehicle-position/prasarana/?category=rapid-bus-kl"
 AREA_NAME = "Kuala Lumpur / Selangor (Rapid Bus KL)"
 
 # -----------------------
@@ -120,12 +120,17 @@ work = compute_headway_proxy(work, circular=circular)
 # XXXXXXXXXX
 
 # Fallback: if direction split causes singletons, compute headway ignoring direction for remaining NaNs
+# Fallback: if direction split causes singletons, compute headway ignoring direction for remaining NaNs
 missing = work["headway_m"].isna()
 if missing.any() and "direction_id" in work.columns:
-    tmp = work.loc[missing].copy()
-    tmp = tmp.drop(columns=["direction_id"])
-    tmp = compute_headway_proxy(tmp, circular=circular)
-    work.loc[missing, "headway_m"] = tmp["headway_m"].to_numpy()
+    # Fix: Compute on the FULL set (ignoring direction) to get gaps, then backfill
+    # Previous logic only computed on subset, which fails to find neighbors
+    tmp_all = work.copy()
+    tmp_all = tmp_all.drop(columns=["direction_id"])
+    tmp_all = compute_headway_proxy(tmp_all, circular=circular)
+    
+    # Only fill where it was missing
+    work.loc[missing, "headway_m"] = tmp_all.loc[missing, "headway_m"]
 
 
 st.subheader("Debug V2 Headway")
@@ -226,13 +231,13 @@ with left:
             map_style="light",
             tooltip={"text": "{route_name}\nvehicle={vehicle_id}\n{anomaly_label}\nupdated={timestamp_kl_str}\nheadway={headway_str}m\nscore={anomaly_score}"},
         )
-        st.pydeck_chart(deck, use_container_width=True)
+        st.pydeck_chart(deck, width="stretch")
     else:
         st.warning("No vehicles to show for this filter.")
 
 with right:
     st.subheader("Route Health (V2 ML)")
-    st.dataframe(health, use_container_width=True, height=300)
+    st.dataframe(health, width="stretch", height=300)
 
     # Exports with KL time
     health_export = health.copy()
@@ -290,12 +295,19 @@ with right:
                     gap=int(row["gap"]),
                 )
 
-                content = groq_chat(
-                    [
-                        {"role": "system", "content": SYSTEM_PROMPT},
-                        {"role": "user", "content": user_msg},
-                    ]
-                )
+                try:
+                    content = groq_chat(
+                        [
+                            {"role": "system", "content": SYSTEM_PROMPT},
+                            {"role": "user", "content": user_msg},
+                        ]
+                    )
+                except RuntimeError as e:
+                    st.error(f"Configuration Error: {e}")
+                    st.stop()
+                except Exception as e:
+                    st.error(f"LLM Error: {e}")
+                    st.stop()
 
                 try:
                     # j = json.loads(content)
