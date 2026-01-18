@@ -69,7 +69,7 @@ Default (demo) feed:
 ---
 
 ## Project Structure
-```text
+'''text
 .
 ├── app.py
 ├── requirements.txt
@@ -82,7 +82,7 @@ Default (demo) feed:
 │   ├── llm.py            # optional LLM client (secrets/env safe)
 │   └── prompts.py        # system/user prompts for rider updates
 └── report/               # optional: report assets/notes
-**```**
+'''
 ---
 
 
@@ -90,9 +90,10 @@ Default (demo) feed:
 ## Setup & Run (Local / Codespaces)
 
 ### 1) Install dependencies
-```bash
+'''bash
 pip install -r requirements.txt
 
 
 streamlit run app.py --server.address 0.0.0.0 --server.port 8501
 
+'''
