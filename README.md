@@ -69,20 +69,19 @@ Default (demo) feed:
 ---
 
 ## Project Structure
+```text
 .
 ├── app.py
 ├── requirements.txt
 ├── src/
-│ ├── init.py
-│ ├── gtfs_rt.py # fetch + parse GTFS-RT vehicle positions
-│ ├── gtfs_static.py # load GTFS static (routes, trips, shapes)
-│ ├── features.py # joins + shape cache + progress/headway computation
-│ ├── anomaly.py # IsolationForest scoring + BUNCHED/GAP labels
-│ ├── llm.py # optional LLM client (secrets/env safe)
-│ └── prompts.py # system/user prompts for rider updates
-└── report/ # optional: report assets/notes
-
-
+│   ├── __init__.py
+│   ├── gtfs_rt.py        # fetch + parse GTFS-RT vehicle positions
+│   ├── gtfs_static.py    # load GTFS static (routes, trips, shapes)
+│   ├── features.py       # joins + shape cache + progress/headway computation
+│   ├── anomaly.py        # IsolationForest scoring + BUNCHED/GAP labels
+│   ├── llm.py            # optional LLM client (secrets/env safe)
+│   └── prompts.py        # system/user prompts for rider updates
+└── report/               # optional: report assets/notes
 
 ---
 
