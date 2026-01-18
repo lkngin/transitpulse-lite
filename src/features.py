@@ -59,7 +59,7 @@ def build_shape_cache(shapes: pd.DataFrame, downsample_step: int = 8) -> dict:
         # Store "total_m" for circular calcs
         total_m = cum[-1] if len(cum) > 0 else 0.0
 
-        cache[sid] = {
+        cache[str(sid)] = {
             "lat": lat, "lon": lon, "cum": cum, "ds_idx": ds_idx, "total_m": total_m
         }
 
