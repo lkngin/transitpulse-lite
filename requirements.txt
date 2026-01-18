@@ -1,0 +1,7 @@
+streamlit>=1.33
+pandas>=2.0
+numpy>=1.24
+requests>=2.31
+pydeck>=0.9
+gtfs-realtime-bindings>=1.0.0
+scikit-learn>=1.3
