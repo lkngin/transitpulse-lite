@@ -19,6 +19,7 @@ def fetch_vehicle_positions(gtfs_rt_url: str) -> pd.DataFrame:
             "entity_id": getattr(ent, "id", None),  # ✅ unique key
             "vehicle_id": getattr(v.vehicle, "id", None),
             "trip_id": getattr(v.trip, "trip_id", None),
+            "rt_route_id": getattr(v.trip, "route_id", None), # Extract route_id directly from RT
             "lat": getattr(pos, "latitude", None),
             "lon": getattr(pos, "longitude", None),
             "speed": getattr(pos, "speed", None),

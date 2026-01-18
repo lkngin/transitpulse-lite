@@ -16,6 +16,10 @@ def attach_routes(rt_df: pd.DataFrame, trips: pd.DataFrame, routes: pd.DataFrame
     """
     df = rt_df.merge(trips, on="trip_id", how="left")
     
+    # Fallback: If static trip didn't match, use the route_id from the RT feed
+    if "rt_route_id" in df.columns:
+        df["route_id"] = df["route_id"].fillna(df["rt_route_id"])
+    
     if "shape_id" in df.columns:
         df["shape_id"] = df["shape_id"].astype("string")
 
@@ -131,7 +135,8 @@ def compute_headway_proxy(df: pd.DataFrame, circular: bool = False) -> pd.DataFr
             else:
                 route_len = float(np.nanmax(prog) - np.nanmin(prog))
 
-            wrap = (route_len - prog[-1]) + prog[0] if route_len > 0 else np.nan
+            # Prevent negative wrap if prog[-1] > shape_len (overshoot)
+            wrap = max(0.0, (route_len - prog[-1]) + prog[0]) if route_len > 0 else np.nan
             gap_ahead[-1] = wrap
             gap_behind[0] = wrap
 
