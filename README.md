@@ -69,7 +69,7 @@ Default (demo) feed:
 ---
 
 ## Project Structure
-
+.
 ├── app.py
 ├── requirements.txt
 ├── src/
