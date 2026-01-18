@@ -82,7 +82,7 @@ Default (demo) feed:
 │   ├── llm.py            # optional LLM client (secrets/env safe)
 │   └── prompts.py        # system/user prompts for rider updates
 └── report/               # optional: report assets/notes
-
+**```**
 ---
 
 
