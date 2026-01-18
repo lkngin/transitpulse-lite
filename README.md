@@ -69,3 +69,29 @@ Default (demo) feed:
 ---
 
 ## Project Structure
+
+├── app.py
+├── requirements.txt
+├── src/
+│ ├── init.py
+│ ├── gtfs_rt.py # fetch + parse GTFS-RT vehicle positions
+│ ├── gtfs_static.py # load GTFS static (routes, trips, shapes)
+│ ├── features.py # joins + shape cache + progress/headway computation
+│ ├── anomaly.py # IsolationForest scoring + BUNCHED/GAP labels
+│ ├── llm.py # optional LLM client (secrets/env safe)
+│ └── prompts.py # system/user prompts for rider updates
+└── report/ # optional: report assets/notes
+
+
+
+---
+
+## Setup & Run (Local / Codespaces)
+
+### 1) Install dependencies
+```bash
+pip install -r requirements.txt
+
+
+streamlit run app.py --server.address 0.0.0.0 --server.port 8501
+
