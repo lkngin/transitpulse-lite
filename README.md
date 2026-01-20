@@ -44,7 +44,7 @@ Default (demo) feed:
 - GTFS-Static: `prasarana?category=rapid-bus-kl`
 - GTFS-RT vehicle positions: `prasarana?category=rapid-bus-kl`
 
-> You may change the feed URLs in `app.py` to test other operators/categories.
+> You may change the feed URLs in `config.py` to test other operators/categories.
 
 ---
 
@@ -76,21 +76,28 @@ Default (demo) feed:
 
 ---
 
-## Project Structure
+## Project Structure (Improved Architecture)
 
 ```text
 .
-├── app.py
+├── app.py                    # Main application entry point
+├── architecture.md           # System architecture documentation
+├── config.py                 # Centralized configuration
 ├── requirements.txt
 ├── src/
 │   ├── __init__.py
-│   ├── gtfs_rt.py        # fetch + parse GTFS-RT vehicle positions
-│   ├── gtfs_static.py    # load GTFS static (routes, trips, shapes)
-│   ├── features.py       # joins + shape cache + progress/headway computation
-│   ├── anomaly.py        # IsolationForest scoring + BUNCHED/GAP labels
-│   ├── llm.py            # optional LLM client (secrets/env safe)
-│   └── prompts.py        # system/user prompts for rider updates
-└── report/               # optional: report assets/notes
+│   ├── gtfs_rt.py            # fetch + parse GTFS-RT vehicle positions
+│   ├── gtfs_static.py        # load GTFS static (routes, trips, shapes)
+│   ├── features.py           # joins + shape cache + progress/headway computation
+│   ├── anomaly.py            # IsolationForest scoring + BUNCHED/GAP labels
+│   ├── llm.py                # optional LLM client (secrets/env safe)
+│   ├── prompts.py            # system/user prompts for rider updates
+│   ├── utils.py              # utility functions (bearings, layers, etc.)
+│   └── services.py           # business logic orchestration
+└── tests/                    # test files
+    ├── data_flow_check.py
+    ├── diagnostic.py
+    └── test_logic.py
 ```
 
 ---
@@ -101,8 +108,40 @@ Default (demo) feed:
 
 ```bash
 pip install -r requirements.txt
-
-
-streamlit run app.py --server.address 0.0.0.0 --server.port 8501
-
 ```
+
+### 2) Configure application (optional)
+
+Modify settings in `config.py` to customize API endpoints, thresholds, and UI parameters for different regions or use cases.
+
+### 3) Run the application
+
+```bash
+streamlit run app.py --server.address 0.0.0.0 --server.port 8501
+```
+
+---
+
+## Configuration
+
+The application uses a centralized configuration system in `config.py` with the following modules:
+
+- **APIConfig**: API endpoints and timeout settings
+- **RegionConfig**: Geographic and timezone settings
+- **AppConfig**: Application behavior and thresholds
+- **UIConfig**: User interface appearance and colors
+- **FeatureConfig**: Computation parameters
+
+This modular approach enables easy customization without code modification.
+
+---
+
+## Improvements for Maintainability
+
+1. **Modular Architecture**: Separated concerns into distinct modules (data access, features, ML, UI)
+2. **Centralized Configuration**: All hardcoded values moved to `config.py`
+3. **Service Layer**: Business logic encapsulated in `services.py`
+4. **Utility Functions**: Reusable components in `utils.py`
+5. **Documentation**: Architecture documented in `architecture.md`
+
+These improvements enhance maintainability by reducing coupling, improving testability, and making configuration easier.
